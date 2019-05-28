@@ -106,6 +106,32 @@ function getXShiftSegmentation(shiftSegmentation, rowNum, colNum) {
 }
 
 
+function getSegmentArray(segmentName) {
+    var segmentArray;
+    switch (segmentName) {
+        case 'head':
+            segmentArray = [0, 1];
+            break;
+        case 'rightArm':
+            segmentArray = [14, 15, 16, 21, 22];
+            break;
+        case 'rightLeg':
+            segmentArray = [2, 3, 4, 9, 10];
+            break;
+        case 'body':
+            segmentArray = [12, 13];
+            break;
+        case 'leftArm':
+            segmentArray = [17, 18, 19, 20, 23];
+            break;
+        case 'leftLeg':
+            segmentArray = [5, 6, 7, 8, 11];
+            break;
+    }
+    return segmentArray;
+}
+
+
 /*
     Add btn click listener
 */
@@ -168,29 +194,29 @@ async function main() {
         var data = imgData.data;                   /// view for the canvas buffer
         
         // Read from radio btn
-        var showSegementIdx = parseInt($("input[name='body']:checked").val());
-        var diffWithBackground = showSegementIdx - (-1);
+        var showSegementName = $("input[name='body']:checked").val();
+        var showSegementArray = getSegmentArray(showSegementName);
+        var diffWithBackground = 1;
 
         // Find Boundary
-        if (partSegmentation.data.includes(showSegementIdx)) {
+        var shiftSegmentation = Array.from(partSegmentation.data);
 
-            var shiftSegmentation = Array.from(partSegmentation.data);
-
-            // Loop change the array only include backgroundIdx and showSegementIdx
-            for (var i=0; i<shiftSegmentation.length; i++) {
-                if (shiftSegmentation[i] !== showSegementIdx)
-                    shiftSegmentation[i] = -1;
+        // Loop change the array only include backgroundIdx and showSegementIdx
+        for (var i=0; i<shiftSegmentation.length; i++) {
+            if (showSegementArray.includes(shiftSegmentation[i])) {
+                shiftSegmentation[i] = 0;
+            } else {
+                shiftSegmentation[i] = -1;
             }
-
-            // 1d to 2d array
-            var newShiftSegmentation = [];
-            while(shiftSegmentation.length) newShiftSegmentation.push(shiftSegmentation.splice(0,camera.width));
-
-            // Get difference of x-shift and y-shift frame
-            var xShiftSegmentation = getXShiftSegmentation(newShiftSegmentation, camera.height, camera.width);
-            var yShiftSegmentation = getYShiftSegmentation(newShiftSegmentation, camera.height, camera.width);
         }
 
+        // 1d to 2d array
+        var newShiftSegmentation = [];
+        while(shiftSegmentation.length) newShiftSegmentation.push(shiftSegmentation.splice(0,camera.width));
+
+        // Get difference of x-shift and y-shift frame
+        var xShiftSegmentation = getXShiftSegmentation(newShiftSegmentation, camera.height, camera.width);
+        var yShiftSegmentation = getYShiftSegmentation(newShiftSegmentation, camera.height, camera.width);
 
         // Find the y-shift indexes and change RGB
         if(yShiftSegmentation) {
