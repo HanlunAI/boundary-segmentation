@@ -102,7 +102,12 @@ function getXShiftSegmentation(shiftSegmentation, rowNum, colNum) {
         return val.slice(0, -lineWidth);
     });
 
-    // TODO: Return the difference of original and horizontal shift tensor
+    const oriTensor = tf.tensor(oriShiftSegmentation, [rowNum, colNum], 'int32');
+    const rColTensor = tf.tensor(rCol, [rowNum, colNum - lineWidth], 'int32');
+    const colTensor = tf.ones([rowNum, lineWidth]).mul(tf.scalar(-1));
+    const h_shift = tf.concat([colTensor, rColTensor], 1);
+
+    return Array.from(oriTensor.sub(h_shift).abs().reshape([rowNum*colNum]).dataSync());
 }
 
 

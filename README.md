@@ -24,3 +24,5 @@ If you are using python version up to 2.x
 ```
 python -m SimpleHTTPServer
 ```
+
+Now open the demo [http://localhost:8000/boundary-segmentation.html](http://localhost:8000/boundary-segmentation.html)
